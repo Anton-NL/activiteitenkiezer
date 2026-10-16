@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7f2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Wat gaan we doen?">
+  <meta name="description" content="Jouw persoonlijke activiteitenkiezer. Kies categorieën en laat het lot beslissen.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>Wat gaan we doen?</title>
+  <style>
+    :root {
+      --bg:#f5f7f2; --card:#fff; --ink:#203329; --muted:#758278;
+      --green:#2f6749; --green-dark:#245239; --pale:#e4efe5; --border:#dce4db;
+      --red:#b84b4b; --tag:#eef3ec; --shadow:0 8px 28px rgba(32,51,41,.06);
+    }
+    * { box-sizing:border-box; }
+    html { background:var(--bg); }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); min-height:100vh; }
+    button,input { font:inherit; }
+    button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .app { max-width:620px; margin:0 auto; min-height:100vh; padding: max(18px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom)); }
+    header { display:flex; align-items:center; gap:12px; padding:8px 4px 20px; }
+    .logo { width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:var(--pale);color:var(--green);font-size:27px;font-weight:800; }
+    h1 { margin:0;font-size:22px;letter-spacing:-.5px; }
+    .subtitle { color:var(--muted);font-size:12px;margin-top:4px; }
+    .tabs { display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#e9ede6;padding:4px;border-radius:15px; }
+    .tab { border:0;background:transparent;padding:12px 4px;border-radius:11px;color:var(--muted);font-size:12px;font-weight:750; }
+    .tab.active { background:white;color:var(--green);box-shadow:0 2px 8px #2033290d; }
+    main { padding:22px 2px 8px; }
+    .section-title { font-size:17px;font-weight:800;margin:0 0 12px; }
+    .muted { color:var(--muted);font-size:13px;line-height:1.5; }
+    .chips { display:flex;flex-wrap:wrap;gap:8px; }
+    .chip { border:1px solid var(--border);background:white;color:var(--ink);border-radius:999px;padding:10px 15px;font-size:13px;font-weight:650; }
+    .chip.selected { background:var(--pale);border-color:#b9d2bc;color:var(--green-dark); }
+    .count { font-size:12px;color:var(--muted);margin:12px 0 18px; }
+    .result { background:var(--card);border:1px solid var(--border);border-radius:24px;padding:25px 20px 20px;text-align:center;box-shadow:var(--shadow); }
+    .dice { color:var(--green);font-size:40px;line-height:1;margin-bottom:14px; }
+    .eyebrow { font-size:10px;letter-spacing:1.6px;color:var(--muted);font-weight:850; }
+    .result-name { font-size:26px;line-height:1.2;font-weight:850;letter-spacing:-.5px;margin:12px 0;overflow-wrap:anywhere; }
+    .tags { display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0 2px; }
+    .tag { background:var(--tag);color:var(--green-dark);border-radius:999px;padding:6px 10px;font-size:10px;font-weight:750; }
+    .primary { width:100%;border:0;background:var(--green);color:white;border-radius:14px;padding:16px 14px;margin-top:20px;font-weight:800;font-size:15px;box-shadow:0 4px 10px #2f674922; }
+    .primary:active { background:var(--green-dark);transform:scale(.99); }
+    .secondary { border:0;background:transparent;color:var(--green);font-weight:750;padding:14px 12px 4px; }
+    .tip { background:#eaf0e7;border-radius:14px;padding:14px;margin-top:16px;color:#526557;font-size:12px;line-height:1.5; }
+    .panel { background:white;border:1px solid var(--border);border-radius:17px;padding:15px;margin-bottom:13px; }
+    .field-label { display:block;font-size:13px;font-weight:750;margin:16px 0 8px; }
+    .input { width:100%;min-width:0;border:1px solid var(--border);background:white;border-radius:13px;padding:14px;color:var(--ink);outline:none; }
+    .input:focus { border-color:#8db59a;box-shadow:0 0 0 3px #e4efe5; }
+    .inline { display:flex;gap:8px;align-items:center; }
+    .inline .input { flex:1; }
+    .add { flex:0 0 48px;width:48px;height:48px;border:0;border-radius:13px;background:var(--green);color:white;font-size:27px; }
+    .save { margin-top:16px; }
+    .list-heading { margin:28px 0 10px; }
+    .item { display:flex;align-items:center;gap:8px;padding:14px 2px;border-bottom:1px solid var(--border); }
+    .item-main { min-width:0;flex:1; }
+    .item-name { font-size:14px;font-weight:750;overflow-wrap:anywhere; }
+    .item .tags { justify-content:flex-start;margin-top:6px; }
+    .icon-btn { border:0;background:transparent;width:34px;height:38px;color:var(--green);font-size:19px;font-weight:800; }
+    .icon-btn.delete { color:var(--red);font-size:25px;font-weight:500; }
+    .category-count { color:var(--muted);font-size:12px;min-width:22px;text-align:center; }
+    .dot { width:9px;height:9px;border-radius:50%;background:var(--green);flex:none; }
+    .category-name { flex:1;font-size:14px;font-weight:750;overflow-wrap:anywhere; }
+    .empty { color:var(--muted);font-size:13px;padding:15px 0; }
+    .notice { margin-top:18px;text-align:center;font-size:11px;line-height:1.5;color:var(--muted); }
+    .hidden { display:none!important; }
+    dialog { width:calc(100% - 36px);max-width:420px;border:1px solid var(--border);border-radius:20px;padding:20px;color:var(--ink);box-shadow:0 20px 60px #0002; }
+    dialog::backdrop { background:#17251db3; }
+    dialog h2 { margin:0 0 12px;font-size:19px; }
+    .dialog-actions { display:flex;gap:8px;margin-top:16px; }
+    .dialog-actions button { flex:1;border:1px solid var(--border);border-radius:12px;padding:12px;background:white;color:var(--ink);font-weight:750; }
+    .dialog-actions .confirm { background:var(--green);color:white;border-color:var(--green); }
+    @media (min-width:600px) { .app{padding-top:28px}.result{padding:34px 28px 24px}.result-name{font-size:30px} }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo" aria-hidden="true">↗</div>
+    <div>
+      <h1>Wat gaan we doen?</h1>
+      <div class="subtitle">Jouw persoonlijke activiteitenkiezer</div>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Hoofdmenu">
+    <button class="tab active" data-tab="kiezen">Kiezen</button>
+    <button class="tab" data-tab="activiteiten">Activiteiten</button>
+    <button class="tab" data-tab="categorieen">Categorieën</button>
+  </nav>
+  <main>
+    <section id="screen-kiezen">
+      <h2 class="section-title">Welke categorieën mogen meedoen?</h2>
+      <div class="chips" id="filter-chips"></div>
+      <div class="count" id="available-count"></div>
+      <div class="result" aria-live="polite">
+        <div class="dice" id="dice">⚄</div>
+        <div class="eyebrow" id="result-label">LAAT HET LOT BESLISSEN</div>
+        <div class="result-name" id="result-name">Waar heb je zin in?</div>
+        <div class="tags" id="result-tags"></div>
+        <p class="muted" id="result-hint">Selecteer categorieën en laat je verrassen.</p>
+        <button class="primary" id="choose-btn">⤨ &nbsp; Kies voor mij</button>
+        <button class="secondary hidden" id="again-btn">Kies iets anders</button>
+      </div>
+      <div class="tip">Tip: koppel een activiteit aan meerdere categorieën als dat past, bijvoorbeeld wandelen aan ‘Buiten’ én ‘Actief’.</div>
+    </section>
+
+    <section id="screen-activiteiten" class="hidden">
+      <h2 class="section-title" id="activity-form-title">Activiteit toevoegen</h2>
+      <div class="panel">
+        <label class="field-label" for="activity-name" style="margin-top:0">Naam van de activiteit</label>
+        <input class="input" id="activity-name" placeholder="Bijv. naar het bos wandelen" maxlength="100">
+        <div class="field-label">Kies één of meer categorieën</div>
+        <div class="chips" id="activity-categories"></div>
+        <button class="primary save" id="save-activity">+ Activiteit toevoegen</button>
+        <button class="secondary hidden" id="cancel-edit">Annuleren</button>
+      </div>
+      <h2 class="section-title list-heading">Mijn activiteiten (<span id="activity-count">0</span>)</h2>
+      <div id="activity-list"></div>
+    </section>
+
+    <section id="screen-categorieen" class="hidden">
+      <h2 class="section-title">Mijn categorieën</h2>
+      <p class="muted">Maak categorieën die passen bij jouw manier van kiezen.</p>
+      <div class="inline" style="margin:16px 0">
+        <input class="input" id="new-category" placeholder="Bijv. Sociaal" maxlength="40">
+        <button class="add" id="add-category" aria-label="Categorie toevoegen">+</button>
+      </div>
+      <div id="category-list"></div>
+      <p class="muted" style="margin-top:18px">Als je een categorie verwijdert, blijven de activiteiten bestaan. Ze worden alleen niet meer aan die categorie gekoppeld.</p>
+    </section>
+    <div class="notice">Je gegevens worden alleen op dit apparaat bewaard. Er is geen account nodig.</div>
+  </main>
+</div>
+
+<dialog id="edit-category-dialog">
+  <h2>Categorie hernoemen</h2>
+  <input class="input" id="rename-category-input" maxlength="40">
+  <div class="dialog-actions">
+    <button id="cancel-rename">Annuleren</button>
+    <button class="confirm" id="confirm-rename">Opslaan</button>
+  </div>
+</dialog>
+<dialog id="confirm-dialog">
+  <h2 id="confirm-title">Weet je het zeker?</h2>
+  <p class="muted" id="confirm-message"></p>
+  <div class="dialog-actions">
+    <button id="cancel-confirm">Annuleren</button>
+    <button class="confirm" id="do-confirm">Verwijderen</button>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'activiteitenkiezer-data-v1';
+  const defaults = {
+    categories: ['Buiten', 'Actief', 'Binnen'],
+    activities: [
+      {id:'a1', name:'Wandelen', categories:['Buiten','Actief']},
+      {id:'a2', name:'Fietsen', categories:['Buiten','Actief']},
+      {id:'a3', name:'Een film kijken', categories:['Binnen']},
+      {id:'a4', name:'Een boek lezen', categories:['Binnen']},
+      {id:'a5', name:'Naar de sportschool', categories:['Actief','Binnen']},
+      {id:'a6', name:'Een nieuwe plek ontdekken', categories:['Buiten']}
+    ],
+    filters: ['Buiten','Actief','Binnen']
+  };
+  let state = loadState();
+  let chosenId = null;
+  let editingId = null;
+  let pendingRename = null;
+  let pendingDelete = null;
+  let draftCategories = [];
+
+  const $ = id => document.getElementById(id);
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && Array.isArray(saved.categories) && Array.isArray(saved.activities) && Array.isArray(saved.filters)) {
+        return saved;
+      }
+    } catch(e) {}
+    return structuredClone(defaults);
+  }
+  function persist() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e) { alert('Opslaan is niet gelukt. Controleer de opslagruimte in je browser.'); }
+  }
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    ['kiezen','activiteiten','categorieen'].forEach(name => $('screen-' + name).classList.toggle('hidden', name !== tab));
+    render();
+  }
+  document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+  function chip(label, selected, action, extraClass='') {
+    return `<button class="chip ${selected?'selected':''} ${extraClass}" data-action="${action}" data-value="${esc(label)}">${selected?'✓ &nbsp;':''}${esc(label)}</button>`;
+  }
+  function renderFilters() {
+    $('filter-chips').innerHTML = state.categories.map(c => chip(c, state.filters.includes(c), 'filter')).join('');
+    $('available-count').textContent = `${eligibleActivities().length} ${eligibleActivities().length===1?'activiteit beschikbaar':'activiteiten beschikbaar'}`;
+  }
+  function eligibleActivities() {
+    return state.activities.filter(a => a.categories.some(c => state.filters.includes(c)));
+  }
+  function renderActivityCategoryChips() {
+    $('activity-categories').innerHTML = state.categories.map(c => chip(c, draftCategories.includes(c), 'draft')).join('');
+  }
+  function tags(categories) {
+    return categories.map(c => `<span class="tag">${esc(c)}</span>`).join('');
+  }
+  function renderActivities() {
+    $('activity-count').textContent = state.activities.length;
+    $('activity-list').innerHTML = state.activities.length ? state.activities.map(a => `
+      <div class="item">
+        <div class="item-main"><div class="item-name">${esc(a.name)}</div><div class="tags">${tags(a.categories)}</div></div>
+        <button class="icon-btn" data-action="edit-activity" data-id="${esc(a.id)}" aria-label="Bewerk ${esc(a.name)}">✎</button>
+        <button class="icon-btn delete" data-action="delete-activity" data-id="${esc(a.id)}" aria-label="Verwijder ${esc(a.name)}">×</button>
+      </div>`).join('') : '<div class="empty">Je hebt nog geen activiteiten toegevoegd.</div>';
+  }
+  function renderCategories() {
+    $('category-list').innerHTML = state.categories.length ? state.categories.map(c => `
+      <div class="item">
+        <span class="dot"></span><div class="category-name">${esc(c)}</div>
+        <span class="category-count">${state.activities.filter(a=>a.categories.includes(c)).length}</span>
+        <button class="icon-btn" data-action="rename-category" data-value="${esc(c)}" aria-label="Hernoem ${esc(c)}">✎</button>
+        <button class="icon-btn delete" data-action="delete-category" data-value="${esc(c)}" aria-label="Verwijder ${esc(c)}">×</button>
+      </div>`).join('') : '<div class="empty">Voeg hierboven je eerste categorie toe.</div>';
+  }
+  function renderChosen() {
+    const chosen = state.activities.find(a => a.id === chosenId);
+    if (!chosen) {
+      $('dice').textContent = '⚄';
+      $('result-label').textContent = 'LAAT HET LOT BESLISSEN';
+      $('result-name').textContent = 'Waar heb je zin in?';
+      $('result-tags').innerHTML = '';
+      $('result-hint').classList.remove('hidden');
+      $('again-btn').classList.add('hidden');
+      return;
+    }
+    $('dice').textContent = '✦';
+    $('result-label').textContent = 'JOUW ACTIVITEIT';
+    $('result-name').textContent = chosen.name;
+    $('result-tags').innerHTML = tags(chosen.categories);
+    $('result-hint').classList.add('hidden');
+    $('again-btn').classList.remove('hidden');
+  }
+  function render() {
+    renderFilters(); renderActivityCategoryChips(); renderActivities(); renderCategories(); renderChosen();
+  }
+  function choose() {
+    const eligible = eligibleActivities();
+    if (!state.filters.length) { alert('Selecteer minstens één categorie.'); return; }
+    if (!eligible.length) { alert('Geen activiteiten gevonden. Voeg activiteiten toe of selecteer andere categorieën.'); return; }
+    const pool = eligible.filter(a => a.id !== chosenId);
+    const choices = pool.length ? pool : eligible;
+    const next = choices[Math.floor(Math.random()*choices.length)];
+    chosenId = next.id;
+    renderChosen();
+  }
+  $('choose-btn').addEventListener('click', choose);
+  $('again-btn').addEventListener('click', choose);
+
+  function resetActivityForm() {
+    editingId = null;
+    $('activity-name').value = '';
+    draftCategories = state.categories.length ? [state.categories[0]] : [];
+    $('activity-form-title').textContent = 'Activiteit toevoegen';
+    $('save-activity').textContent = '+ Activiteit toevoegen';
+    $('cancel-edit').classList.add('hidden');
+    renderActivityCategoryChips();
+  }
+  $('save-activity').addEventListener('click', () => {
+    const name = $('activity-name').value.trim();
+    if (!name) { alert('Geef je activiteit een naam.'); $('activity-name').focus(); return; }
+    if (!draftCategories.length) { alert('Kies minstens één categorie.'); return; }
+    if (editingId) {
+      const activity = state.activities.find(a => a.id === editingId);
+      if (activity) { activity.name = name; activity.categories = [...draftCategories]; }
+    } else {
+      state.activities.push({id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random()), name, categories:[...draftCategories]});
+    }
+    persist(); resetActivityForm(); render();
+  });
+  $('cancel-edit').addEventListener('click', resetActivityForm);
+  $('activity-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('save-activity').click(); });
+
+  $('add-category').addEventListener('click', addCategory);
+  $('new-category').addEventListener('keydown', e => { if (e.key === 'Enter') addCategory(); });
+  function addCategory() {
+    const value = $('new-category').value.trim();
+    if (!value) return;
+    if (state.categories.some(c => c.toLowerCase() === value.toLowerCase())) { alert('Deze categorie bestaat al.'); return; }
+    state.categories.push(value); state.filters.push(value);
+    $('new-category').value = '';
+    persist(); render();
+  }
+
+  document.addEventListener('click', e => {
+    const button = e.target.closest('button[data-action]');
+    if (!button) return;
+    const {action, value, id} = button.dataset;
+    if (action === 'filter') {
+      state.filters = state.filters.includes(value) ? state.filters.filter(c=>c!==value) : [...state.filters, value];
+      chosenId = null; persist(); render();
+    }
+    if (action === 'draft') {
+      draftCategories = draftCategories.includes(value) ? draftCategories.filter(c=>c!==value) : [...draftCategories, value];
+      renderActivityCategoryChips();
+    }
+    if (action === 'edit-activity') {
+      const a = state.activities.find(x=>x.id===id); if (!a) return;
+      editingId = id; $('activity-name').value = a.name; draftCategories = [...a.categories];
+      $('activity-form-title').textContent = 'Activiteit aanpassen'; $('save-activity').textContent = 'Wijzigingen opslaan';
+      $('cancel-edit').classList.remove('hidden'); renderActivityCategoryChips(); switchTab('activiteiten');
+      $('activity-name').focus();
+    }
+    if (action === 'delete-activity') {
+      const a = state.activities.find(x=>x.id===id); if (!a) return;
+      askConfirm('Activiteit verwijderen?', `Weet je zeker dat je “${a.name}” wilt verwijderen?`, () => {
+        state.activities = state.activities.filter(x=>x.id!==id); if (chosenId===id) chosenId=null;
+        if (editingId===id) resetActivityForm(); persist(); render();
+      });
+    }
+    if (action === 'rename-category') {
+      pendingRename = value; $('rename-category-input').value = value; $('edit-category-dialog').showModal();
+      $('rename-category-input').focus(); $('rename-category-input').select();
+    }
+    if (action === 'delete-category') {
+      askConfirm('Categorie verwijderen?', `Activiteiten blijven bestaan, maar verliezen de categorie “${value}”.`, () => {
+        state.categories = state.categories.filter(c=>c!==value);
+        state.filters = state.filters.filter(c=>c!==value);
+        state.activities.forEach(a=>a.categories = a.categories.filter(c=>c!==value));
+        draftCategories = draftCategories.filter(c=>c!==value);
+        persist(); render();
+      });
+    }
+  });
+
+  function askConfirm(title, message, callback) {
+    pendingDelete = callback;
+    $('confirm-title').textContent = title; $('confirm-message').textContent = message;
+    $('confirm-dialog').showModal();
+  }
+  $('cancel-confirm').addEventListener('click', () => $('confirm-dialog').close());
+  $('do-confirm').addEventListener('click', () => {
+    $('confirm-dialog').close();
+    if (pendingDelete) pendingDelete();
+    pendingDelete = null;
+  });
+  $('cancel-rename').addEventListener('click', () => $('edit-category-dialog').close());
+  $('confirm-rename').addEventListener('click', () => {
+    const next = $('rename-category-input').value.trim();
+    const old = pendingRename;
+    if (!next || !old || next === old) { $('edit-category-dialog').close(); return; }
+    if (state.categories.some(c => c.toLowerCase()===next.toLowerCase())) { alert('Deze categorie bestaat al.'); return; }
+    state.categories = state.categories.map(c=>c===old?next:c);
+    state.filters = state.filters.map(c=>c===old?next:c);
+    state.activities.forEach(a=>a.categories=a.categories.map(c=>c===old?next:c));
+    draftCategories = draftCategories.map(c=>c===old?next:c);
+    persist(); render(); $('edit-category-dialog').close();
+  });
+  $('rename-category-input').addEventListener('keydown', e => { if (e.key==='Enter') $('confirm-rename').click(); });
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+  render();
+})();
+</script>
+</body>
+</html>
